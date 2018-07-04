@@ -11,6 +11,7 @@ use futures::Stream;
 
 use std::env;
 use std::path::PathBuf;
+use std::thread;
 
 // TODO cli args
 fn main() -> Result<(), Error> {
@@ -72,8 +73,41 @@ fn handle_tar(req: &HttpRequest) -> Result<HttpResponse> {
     if !(path.is_dir()) {
         return Err(error::ErrorBadRequest("not a directory"));
     }
+    let (writer, stream) = MpscWriter::new();
 
-    Ok(HttpResponse::Ok().body(format!("fixme: {:?}\n", path)))
+    thread::spawn(move || {
+        let mut a = tar::Builder::new(writer);
+        a.mode(tar::HeaderMode::Deterministic);
+        a.append_dir_all(path.clone(), path);
+        a.finish();
+    });
+
+    let resp = HttpResponse::Ok()
+        .content_type("application/x-tar")
+        .streaming(stream.map_err(|_e| error::ErrorBadRequest("bad request")));
+    Ok(resp)
 }
 
 
+// TODO: see about a bounded channel, that work with tokio
+struct MpscWriter {
+    tx: futures::sync::mpsc::UnboundedSender<bytes::Bytes>
+}
+
+impl MpscWriter {
+    fn new() -> (Self, futures::sync::mpsc::UnboundedReceiver<bytes::Bytes>) {
+        let (tx, rx) = futures::sync::mpsc::unbounded();
+        (MpscWriter{tx:tx}, rx)
+    }
+}
+
+impl std::io::Write for MpscWriter {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        self.tx.unbounded_send(bytes::Bytes::from(buf));
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
