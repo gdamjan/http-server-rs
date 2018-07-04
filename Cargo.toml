@@ -10,6 +10,9 @@ actix = "*"
 actix-web = { git = "https://github.com/actix/actix-web.git" }
 futures = "0.1"
 tar = "0.4"
+bytes = "0.4"
+percent-encoding = "1.0"
+htmlescape = "0.3"
 
 [patch.crates-io]
 actix = { git = "https://github.com/actix/actix.git" }
