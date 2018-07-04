@@ -65,7 +65,7 @@ fn handle_directory<'a, 'b>(
         }
     }
     s.push_str("</table><hr></body></html>");
-    Ok(HttpResponse::Ok().content_type("text/html").body(s))
+    Ok(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(s))
 }
 
 fn handle_tar(req: &HttpRequest) -> Result<HttpResponse> {
