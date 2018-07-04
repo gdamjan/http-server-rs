@@ -59,9 +59,9 @@ fn handle_directory<'a, 'b>(
 
         let size = meta.len();
         if meta.file_type().is_dir() {
-            s.push_str(&format!("<tr><td><a href='{file_url}/'>{file_name}/</a> <small><a href='{file_url}.tar'>(tar)</a></small></td></tr>\n", file_name=file_name, file_url=file_url));
+            s.push_str(&format!("<tr><td><a href=\"{file_url}/\">{file_name}/</a> <small><a href=\"{file_url}.tar\">(tar)</a></small></td></tr>\n", file_name=file_name, file_url=file_url));
         } else {
-            s.push_str(&format!("<tr><td><a href='{file_url}'>{file_name}</a> (size: {size})</td></tr>\n",  file_name=file_name, file_url=file_url, size=size));
+            s.push_str(&format!("<tr><td><a href=\"{file_url}\">{file_name}</a> (size: {size})</td></tr>\n",  file_name=file_name, file_url=file_url, size=size));
         }
     }
     s.push_str("</table><hr></body></html>");
