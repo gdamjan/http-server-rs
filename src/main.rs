@@ -50,7 +50,7 @@ fn handle_directory<'a, 'b>(
                                               .filter(|r| dir.is_visible(r))
                                               .filter_map(|r| r.ok())
                                               .collect();
-    paths.sort_by_key(|dir| dir.metadata().unwrap().file_type().is_dir());
+    paths.sort_by_key(|r| (!r.metadata().unwrap().file_type().is_dir(), r.file_name()));
     for entry in paths {
         let meta = entry.metadata()?;
         let file_url = utf8_percent_encode(&entry.file_name().to_string_lossy(), DEFAULT_ENCODE_SET).to_string();
