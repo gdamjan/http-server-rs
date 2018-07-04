@@ -1,0 +1,15 @@
+[package]
+name = "http-server"
+version = "0.1.0"
+authors = ["Damjan Georgievski <gdamjan@gmail.com>"]
+license = "MIT"
+readme = "README.md"
+
+[dependencies]
+actix = "*"
+actix-web = { git = "https://github.com/actix/actix-web.git" }
+futures = "0.1"
+tar = "0.4"
+
+[patch.crates-io]
+actix = { git = "https://github.com/actix/actix.git" }

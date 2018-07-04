@@ -1,0 +1,18 @@
+a simple http server like `python -m http.server` but:
+
+* written in rust with actix, should be faster
+* allow concurency
+* download whole directories in .tar format
+* better auto index
+* maybe announce itself on mDNS (avahi)
+* maybe compress
+
+Usage:
+
+```
+http-server [--bind ADDRESS] [--chdir DIRECTORY] [port]
+
+  port                  Specify alternate port [default: 8000]
+  --bind ADDRESS        Specify alternate bind address [default: all interfaces]
+  --chdir DIRECTORY     Specify directory to server [default: current directory]
+```
