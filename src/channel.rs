@@ -24,7 +24,7 @@ pub fn run_tar_in_thread(path: PathBuf) -> futures::sync::mpsc::UnboundedReceive
  *
  *   there are 2 features important about futures::sync::mpsc
  *       - it works with tokio (and so with actix), so the stream is async friendly
- *       -
+ *       - it can be sent across threads (more importantly, the tx part)
  *   cons:
  *       futures::sync::mpsc::unbounded() is unbounded, which means the tar thread will
  *       just push everything in memory as fast as it can (as cpu allows).
