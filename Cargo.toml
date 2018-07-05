@@ -16,3 +16,8 @@ htmlescape = "0.3"
 
 [patch.crates-io]
 actix = { git = "https://github.com/actix/actix.git" }
+
+[profile.release]
+#opt-level = 's'
+lto = true
+panic = 'abort'
