@@ -11,8 +11,9 @@ pub fn run_tar_in_thread(path: PathBuf) -> futures::sync::mpsc::UnboundedReceive
 
     thread::spawn(move || {
         let mut a = tar::Builder::new(writer);
+        let last_path_component = path.file_name().unwrap();
         a.mode(tar::HeaderMode::Deterministic);
-        a.append_dir_all(path.clone(), path);
+        a.append_dir_all(last_path_component, &path);
         a.finish();
     });
     stream
