@@ -25,35 +25,38 @@ fn handle_directory<'a, 'b>(
                                               .filter_map(|r| r.ok())
                                               .collect();
     paths.sort_by_key(|r| (!r.metadata().unwrap().file_type().is_dir(), r.file_name()));
-    let mut t = String::from("<table>
-    <tr><td>📁 <a href='../'>../</a></td><td>Size</td></tr>\n");
+    let mut body = String::new();
+    body.push_str(&format!("<h1>Index of {index}</h1><small>[<a href={index}.tar>.tar</a> of whole directory]</small><hr>
+    <table>
+    <tr><td>📁 <a href='../'>../</a></td><td>Size</td></tr>\n", index=req.path()));
     for entry in paths {
         let meta = entry.metadata()?;
         let file_url = utf8_percent_encode(&entry.file_name().to_string_lossy(), DEFAULT_ENCODE_SET).to_string();
         let file_name = escape_html_entity(&entry.file_name().to_string_lossy());
         let size = meta.len();
 
-        t.push_str("<tr>");
+        body.push_str("<tr>");
         if meta.file_type().is_dir() {
-            t.push_str(&format!("<td>📂 <a href=\"{file_url}/\">{file_name}/</a></td>", file_name=file_name, file_url=file_url));
-            t.push_str(&format!("<td><small>[<a href=\"{file_url}.tar\">.tar</a>]</small></td>\n", file_url=file_url));
+            body.push_str(&format!("<td>📂 <a href=\"{file_url}/\">{file_name}/</a></td>", file_name=file_name, file_url=file_url));
+            body.push_str(&format!("<td><small>[<a href=\"{file_url}.tar\">.tar</a>]</small></td>", file_url=file_url));
         } else {
-            t.push_str(&format!("<td>🗎 <a href=\"{file_url}\">{file_name}</a></td>", file_name=file_name, file_url=file_url));
-            t.push_str(&format!("<td>{size}</td>", size=size));
+            body.push_str(&format!("<td>🗎 <a href=\"{file_url}\">{file_name}</a></td>", file_name=file_name, file_url=file_url));
+            body.push_str(&format!("<td>{size}</td>", size=size));
         }
-        t.push_str("</tr>\n");
+        body.push_str("</tr>\n");
     }
-    t.push_str("</table>");
-    let mut body = String::from(format!("<html>
+    body.push_str("</table><hr>\n");
+
+    let mut html = String::from(format!("<html>
     <head>
     <title>Index of {index}</title>
-    <style>table {{width:100%}} table td:nth-child(2) {{text-align:right}}</style>
+    <style>h1 {{margin-bottom: 0}} table {{width:100%}} table td:nth-child(2) {{text-align:right}}</style>
     </head>
-    <body bgcolor='white'>
-    <h1>Index of {index}</h1><hr>\n", index=req.path()));
-    body.push_str(t.as_str());
-    body.push_str("<hr></body></html>\n");
-    Ok(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(body))
+    <body bgcolor='white'>\n", index=req.path()));
+    html.push_str(body.as_str());
+    html.push_str("</body></html>\n");
+
+    Ok(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(html))
 }
 
 fn handle_tar(req: &HttpRequest) ->  impl Responder {
