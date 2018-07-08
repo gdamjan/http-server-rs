@@ -1,4 +1,4 @@
-use actix_web::{error, fs, App, HttpRequest, HttpResponse, Result, http::Method};
+use actix_web::{error, fs, App, HttpRequest, HttpResponse, Responder, http::Method};
 use futures::Stream;
 use percent_encoding::{utf8_percent_encode, DEFAULT_ENCODE_SET};
 use htmlescape::encode_minimal as escape_html_entity;
@@ -9,7 +9,7 @@ use std::path::PathBuf;
 use std;
 
 pub fn create_app() -> App {
-    let s = fs::StaticFiles::new(".").show_files_listing().files_listing_renderer(handle_directory);
+    let s = fs::StaticFiles::new(".").unwrap().show_files_listing().files_listing_renderer(handle_directory);
     App::new()
         .resource(r"/{tail:.*}.tar", |r| r.method(Method::GET).f(handle_tar))
         .handler("/", s)
@@ -56,15 +56,15 @@ fn handle_directory<'a, 'b>(
     Ok(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(body))
 }
 
-fn handle_tar(req: &HttpRequest) -> Result<HttpResponse> {
+fn handle_tar(req: &HttpRequest) ->  impl Responder {
     let path: PathBuf = req.match_info().query("tail")?;
     if !(path.is_dir()) {
         return Err(error::ErrorBadRequest("not a directory"));
     }
 
-    let stream = channel::run_tar_in_thread(path);
+    let stream = channel::stream_tar_in_thread(path);
     let resp = HttpResponse::Ok()
         .content_type("application/x-tar")
-        .streaming(stream.map_err(|_e| error::ErrorBadRequest("bad request")));
+        .streaming(stream.map_err(|_e| error::ErrorBadRequest("stream error")));
     Ok(resp)
 }

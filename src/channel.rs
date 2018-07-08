@@ -18,7 +18,7 @@ type Sender = futures::sync::mpsc::Sender<bytes::Bytes>;
 type BlockingSender = futures::sink::Wait<Sender>;
 
 
-pub fn run_tar_in_thread(path: PathBuf) -> Stream {
+pub fn stream_tar_in_thread(path: PathBuf) -> Stream {
     let (writer, stream) = StreamWriter::new(4 * 1024 * 1024);
 
     thread::spawn(move || {
