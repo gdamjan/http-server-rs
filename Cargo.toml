@@ -14,9 +14,6 @@ tar = "0.4"
 percent-encoding = "1.0"
 htmlescape = "0.3"
 
-[patch.crates-io]
-actix = { git = "https://github.com/actix/actix.git" }
-
 [profile.release]
 #opt-level = 's'
 lto = true
