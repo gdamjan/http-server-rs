@@ -19,7 +19,7 @@ type BlockingSender = futures::sink::Wait<Sender>;
 
 
 pub fn stream_tar_in_thread(path: PathBuf) -> Stream {
-    let (writer, stream) = StreamWriter::new(4 * 1024 * 1024);
+    let (writer, stream) = StreamWriter::new(64);
 
     thread::spawn(move || {
         let mut a = tar::Builder::new(writer);
