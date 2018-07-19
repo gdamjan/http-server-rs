@@ -1,5 +1,4 @@
 extern crate actix_web;
-extern crate actix;
 extern crate bytes;
 extern crate futures;
 extern crate tar;
@@ -10,6 +9,7 @@ mod channel;
 mod web;
 
 use actix_web::server;
+use actix_web::actix;
 
 use std::env;
 use std::io;

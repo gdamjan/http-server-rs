@@ -6,7 +6,6 @@ license = "MIT"
 readme = "README.md"
 
 [dependencies]
-actix = "*"
 actix-web = { git = "https://github.com/actix/actix-web.git" }
 bytes = "0.4"
 futures = "0.1"
