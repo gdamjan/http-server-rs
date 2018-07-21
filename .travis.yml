@@ -23,6 +23,7 @@ script:
 
 before_deploy:
   - cargo build --release --target $TARGET
+  - strip --strip-unneeded target/$TARGET/release/http-server
   - zip "$PROJECT_NAME-$TRAVIS_TAG-$TARGET.zip" -j target/$TARGET/release/http-server
 
 deploy:
