@@ -50,6 +50,9 @@ fn main() -> Result<(), io::Error> {
     std::env::set_var("RUST_LOG", "info");
     env_logger::init();
 
+    let root = std::path::Path::new(&chdir);
+    std::env::set_current_dir(&root).unwrap();
+
     let sys = actix::System::new("http_server_rs");
 
     let directory = String::from(chdir);
