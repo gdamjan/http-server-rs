@@ -40,10 +40,10 @@ fn handle_directory<'a, 'b>(
 
         body.push_str("<tr>");
         if meta.file_type().is_dir() {
-            body.push_str(&format!("<td>📂 <a href=\"{file_url}/\">{file_name}/</a></td>", file_name=file_name, file_url=file_url));
-            body.push_str(&format!("<td><small>[<a href=\"{file_url}.tar\">.tar</a>]</small></td>", file_url=file_url));
+            body.push_str(&format!(r#"<td>📂 <a href="{file_url}/">{file_name}/</a></td>"#, file_name=file_name, file_url=file_url));
+            body.push_str(&format!(r#"<td><small>[<a href="{file_url}.tar">.tar</a>]</small></td>"#, file_url=file_url));
         } else {
-            body.push_str(&format!("<td>🗎 <a href=\"{file_url}\">{file_name}</a></td>", file_name=file_name, file_url=file_url));
+            body.push_str(&format!(r#"<td>🗎 <a href="{file_url}">{file_name}</a></td>"#, file_name=file_name, file_url=file_url));
             body.push_str(&format!("<td>{size}</td>", size=size));
         }
         body.push_str("</tr>\n");
