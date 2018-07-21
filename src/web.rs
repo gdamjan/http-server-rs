@@ -7,12 +7,14 @@ use channel;
 
 use std::path::PathBuf;
 use std;
+use bytes;
 
 pub fn create_app(directory: &str) -> App {
     let static_files = fs::StaticFiles::new(directory).unwrap().show_files_listing().files_listing_renderer(handle_directory);
     App::new()
         .middleware(middleware::Logger::new(r#"%a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T"#))
         .resource(r"/{tail:.*}.tar", |r| r.method(Method::GET).f(handle_tar))
+        .resource(r"/favicon.ico", |r| r.method(Method::GET).f(favicon_ico))
         .handler("/", static_files)
 }
 
@@ -71,4 +73,8 @@ fn handle_tar(req: &HttpRequest) ->  impl Responder {
         .content_type("application/x-tar")
         .streaming(stream.map_err(|_e| error::ErrorBadRequest("stream error")));
     Ok(resp)
+}
+
+fn favicon_ico(_req: &HttpRequest) -> impl Responder {
+    bytes::Bytes::from_static(include_bytes!("favicon.png"))
 }
