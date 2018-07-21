@@ -8,6 +8,7 @@ readme = "README.md"
 [dependencies]
 actix-web = "0.7"
 bytes = "0.4"
+env_logger = "*"
 futures = "0.1"
 tar = "0.4"
 percent-encoding = "1.0"

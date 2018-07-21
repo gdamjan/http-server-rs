@@ -1,4 +1,4 @@
-use actix_web::{error, fs, App, HttpRequest, HttpResponse, Responder, http::Method};
+use actix_web::{error, fs, App, HttpRequest, HttpResponse, Responder, http::Method, middleware};
 use futures::Stream;
 use percent_encoding::{utf8_percent_encode, DEFAULT_ENCODE_SET};
 use htmlescape::encode_minimal as escape_html_entity;
@@ -9,10 +9,11 @@ use std::path::PathBuf;
 use std;
 
 pub fn create_app() -> App {
-    let s = fs::StaticFiles::new(".").unwrap().show_files_listing().files_listing_renderer(handle_directory);
+    let static_files = fs::StaticFiles::new(".").unwrap().show_files_listing().files_listing_renderer(handle_directory);
     App::new()
+        .middleware(middleware::Logger::default())
         .resource(r"/{tail:.*}.tar", |r| r.method(Method::GET).f(handle_tar))
-        .handler("/", s)
+        .handler("/", static_files)
 }
 
 fn handle_directory<'a, 'b>(
