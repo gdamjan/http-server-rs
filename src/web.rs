@@ -11,7 +11,7 @@ use std;
 pub fn create_app() -> App {
     let static_files = fs::StaticFiles::new(".").unwrap().show_files_listing().files_listing_renderer(handle_directory);
     App::new()
-        .middleware(middleware::Logger::default())
+        .middleware(middleware::Logger::new(r#"%a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T"#))
         .resource(r"/{tail:.*}.tar", |r| r.method(Method::GET).f(handle_tar))
         .handler("/", static_files)
 }
