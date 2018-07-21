@@ -28,7 +28,6 @@ fn main() -> Result<(), io::Error> {
         .expect(&format!("Can't listen on {} ", bind_addr))
         .start();
 
-    println!("Started http server: {}", bind_addr);
     let _ = sys.run();
     Ok(())
 }
