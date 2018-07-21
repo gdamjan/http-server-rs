@@ -5,25 +5,53 @@ extern crate futures;
 extern crate tar;
 extern crate htmlescape;
 extern crate percent_encoding;
+#[macro_use]
+extern crate clap;
 
 mod channel;
 mod web;
 
 use actix_web::server;
 use actix_web::actix;
+use clap::Arg;
 
-use std::env;
 use std::io;
 
-// TODO cli args
 fn main() -> Result<(), io::Error> {
+    let app = clap::App::new(crate_name!())
+                .author(crate_authors!("\n"))
+                .version(crate_version!())
+                .about(crate_description!())
+                .arg(Arg::with_name("chdir")
+                    .long("chdir")
+                    .value_name("DIRECTORY")
+                    .help("Specify directory to server")
+                    .default_value(".")
+                    .takes_value(true))
+                .arg(Arg::with_name("addr")
+                    .long("bind")
+                    .value_name("ADDRESS")
+                    .help("Specify alternate bind address")
+                    .default_value("0.0.0.0")
+                    .takes_value(true))
+                .arg(Arg::with_name("port")
+                    .help("Specify alternate port")
+                    .default_value("8000")
+                    .index(1));
+    let matches = app.get_matches();
+
+    let chdir = matches.value_of("chdir").unwrap();
+    let port = matches.value_of("port").unwrap();
+    let addr = matches.value_of("addr").unwrap();
+    let bind_addr = format!("{}:{}", addr, port);
+
     std::env::set_var("RUST_LOG", "actix_web=info");
     env_logger::init();
 
-    let bind_addr = env::var("HTTP_ADDR").unwrap_or(String::from("0.0.0.0:8000"));
     let sys = actix::System::new("http_server_rs");
 
-    server::new(web::create_app)
+    let chdir = String::from(chdir);
+    server::new(move || web::create_app(&chdir))
         .bind(&bind_addr)
         .expect(&format!("Can't listen on {} ", bind_addr))
         .start();

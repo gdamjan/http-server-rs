@@ -7,16 +7,22 @@ a simple http server like `python -m http.server` but:
 * maybe announce itself on mDNS (avahi)
 * maybe compress
 
-Usage [TODO]:
-
 ```
-http-server [--bind ADDRESS] [--chdir DIRECTORY] [port]
+USAGE:
+    http-server [OPTIONS] [port]
 
-  port                  Specify alternate port [default: 8000]
-  --bind ADDRESS        Specify alternate bind address [default: all interfaces]
-  --chdir DIRECTORY     Specify directory to server [default: current directory]
+FLAGS:
+    -h, --help       Prints help information
+    -V, --version    Prints version information
+
+OPTIONS:
+        --bind <ADDRESS>       Specify alternate bind address [default: 0.0.0.0]
+        --chdir <DIRECTORY>    Specify directory to server [default: .]
+
+ARGS:
+    <port>    Specify alternate port [default: 8000]
 ```
 
 ## FAQ
 
-* Q: why .tar and not .zip? A: you can't stream a zip file efficiently, it needs to write back in a file.
+* Q: why .tar and not .zip? A: you can't stream a zip file efficiently, it needs to seek and write to the beggining of a file.
