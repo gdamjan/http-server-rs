@@ -24,8 +24,7 @@ fn handle_directory<'a, 'b>(
 ) -> std::io::Result<HttpResponse> {
 
     let mut paths: Vec<_> = std::fs::read_dir(&dir.path).unwrap()
-                                              .filter(|r| dir.is_visible(r))
-                                              .filter_map(|r| r.ok())
+                                              .filter_map(|entry| if dir.is_visible(&entry) { entry.ok() } else {None})
                                               .collect();
     paths.sort_by_key(|r| (!r.metadata().unwrap().file_type().is_dir(), r.file_name()));
     let mut body = String::new();
