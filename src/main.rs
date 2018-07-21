@@ -5,8 +5,7 @@ extern crate futures;
 extern crate tar;
 extern crate htmlescape;
 extern crate percent_encoding;
-#[macro_use]
-extern crate clap;
+#[macro_use] extern crate clap;
 #[macro_use] extern crate log;
 
 mod channel;
@@ -16,9 +15,7 @@ use actix_web::server;
 use actix_web::actix;
 use clap::Arg;
 
-use std::io;
-
-fn main() -> Result<(), io::Error> {
+fn main() -> Result<(), std::io::Error> {
     let app = clap::App::new(crate_name!())
                 .author(crate_authors!("\n"))
                 .version(crate_version!())
