@@ -25,3 +25,9 @@ ARGS:
 ## FAQ
 
 * Q: why .tar and not .zip? A: you can't stream a zip file efficiently, it needs to seek and write to the beggining of a file.
+
+## Release builds
+```
+cargo build --release
+strip --strip-unneeded ./target/release/http-server
+```
