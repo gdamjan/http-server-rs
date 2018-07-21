@@ -1,4 +1,4 @@
-use actix_web::{error, fs, App, HttpRequest, HttpResponse, Responder, http::Method, middleware};
+use actix_web::{error, fs, App, HttpRequest, HttpResponse, Responder, middleware};
 use futures::Stream;
 use percent_encoding::{utf8_percent_encode, DEFAULT_ENCODE_SET};
 use htmlescape::encode_minimal as escape_html_entity;
@@ -13,8 +13,8 @@ pub fn create_app(directory: &str) -> App {
     let static_files = fs::StaticFiles::new(directory).unwrap().show_files_listing().files_listing_renderer(handle_directory);
     App::new()
         .middleware(middleware::Logger::new(r#"%a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T"#))
-        .resource(r"/{tail:.*}.tar", |r| r.method(Method::GET).f(handle_tar))
-        .resource(r"/favicon.ico", |r| r.method(Method::GET).f(favicon_ico))
+        .resource(r"/{tail:.*}.tar", |r| r.get().f(handle_tar))
+        .resource(r"/favicon.ico", |r| r.get().f(favicon_ico))
         .handler("/", static_files)
 }
 
