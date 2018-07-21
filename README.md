@@ -5,7 +5,6 @@ a simple http server like `python -m http.server` but:
 * download whole directories in .tar format
 * better auto index
 * maybe announce itself on mDNS (avahi)
-* maybe compress
 
 ```
 USAGE:
