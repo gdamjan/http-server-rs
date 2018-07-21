@@ -8,7 +8,7 @@ a simple http server like `python -m http.server` but:
 
 ```
 USAGE:
-    http-server [OPTIONS] [port]
+    http-server [OPTIONS] [PORT]
 
 FLAGS:
     -h, --help       Prints help information
@@ -19,7 +19,7 @@ OPTIONS:
         --chdir <DIRECTORY>    Specify directory to server [default: .]
 
 ARGS:
-    <port>    Specify alternate port [default: 8000]
+    <PORT>    Specify alternate port [default: 8000]
 ```
 
 ## FAQ

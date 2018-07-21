@@ -36,6 +36,7 @@ fn main() -> Result<(), io::Error> {
                     .default_value("0.0.0.0")
                     .takes_value(true))
                 .arg(Arg::with_name("port")
+                    .value_name("PORT")
                     .help("Specify alternate port")
                     .default_value("8000")
                     .index(1));
