@@ -7,6 +7,7 @@ extern crate htmlescape;
 extern crate percent_encoding;
 #[macro_use]
 extern crate clap;
+#[macro_use] extern crate log;
 
 mod channel;
 mod web;
@@ -45,16 +46,18 @@ fn main() -> Result<(), io::Error> {
     let addr = matches.value_of("addr").unwrap();
     let bind_addr = format!("{}:{}", addr, port);
 
-    std::env::set_var("RUST_LOG", "actix_web=info");
+    std::env::set_var("RUST_LOG", "info");
     env_logger::init();
 
     let sys = actix::System::new("http_server_rs");
 
-    let chdir = String::from(chdir);
-    server::new(move || web::create_app(&chdir))
+    let directory = String::from(chdir);
+    server::new(move || web::create_app(&directory))
         .bind(&bind_addr)
         .expect(&format!("Can't listen on {} ", bind_addr))
         .start();
+
+    info!("Serving files from {}", chdir);
 
     let _ = sys.run();
     Ok(())
