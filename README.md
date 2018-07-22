@@ -1,4 +1,6 @@
-a simple http server like `python -m http.server` but:
+[![Build Status](https://travis-ci.org/gdamjan/http-server-rs.svg?branch=master)](https://travis-ci.org/gdamjan/http-server-rs)
+
+A simple http server like `python -m http.server` but:
 
 * written in rust with actix, should be faster
 * allow concurrency
