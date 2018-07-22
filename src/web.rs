@@ -97,5 +97,8 @@ fn handle_tar(req: &HttpRequest<PathBuf>) -> impl Responder {
 }
 
 fn favicon_ico(_req: &HttpRequest<PathBuf>) -> impl Responder {
-    bytes::Bytes::from_static(include_bytes!("favicon.png"))
+    HttpResponse::Ok()
+        .content_type("image/png")
+        .header("Cache-Control", "only-if-cached, max-age=86400")
+        .body(bytes::Bytes::from_static(include_bytes!("favicon.png")))
 }
