@@ -30,8 +30,12 @@ fn handle_directory<'a, 'b>(
 
     let rd = std::fs::read_dir(&dir.path)?;
 
+    fn optimistic_is_dir(entry: &std::fs::DirEntry) -> bool {
+        // consider it non directory if metadata reading fails, better than an unwrap() panic
+        entry.metadata().map(|m| m.file_type().is_dir()).unwrap_or(false)
+    }
     let mut paths : Vec<_> = rd.filter_map(|entry| if dir.is_visible(&entry) { entry.ok() } else {None}).collect();
-    paths.sort_by_key(|r| (!r.metadata().unwrap().file_type().is_dir(), r.file_name()));
+    paths.sort_by_key(|entry| (!optimistic_is_dir(entry), entry.file_name()));
 
 
     let dir_tar_path = String::from(req.path().trim_right_matches('/')) + ".tar";
