@@ -11,16 +11,17 @@ use std::path::PathBuf;
 use std;
 use bytes;
 
-pub fn create_app(directory: &PathBuf) -> App<PathBuf> {
-    let root = directory.to_path_buf();
-    let static_files = fs::StaticFiles::new(&root).unwrap()
+pub fn create_app(directory: &PathBuf) -> Result<App<PathBuf>, error::Error> {
+    let root = directory.to_path_buf(); // practically makes a copy, so it can be used as state
+    let static_files = fs::StaticFiles::new(&root)?
                             .show_files_listing()
                             .files_listing_renderer(handle_directory);
-    App::with_state(root)
+    let app = App::with_state(root)
         .middleware(middleware::Logger::new(r#"%a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T"#))
         .resource(r"/{tail:.*}.tar", |r| r.get().f(handle_tar))
         .resource(r"/favicon.ico", |r| r.get().f(favicon_ico))
-        .handler("/", static_files)
+        .handler("/", static_files);
+    Ok(app)
 }
 
 fn handle_directory<'a, 'b>(
