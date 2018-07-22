@@ -39,9 +39,9 @@ fn main() -> Result<(), std::io::Error> {
                     .index(1));
     let matches = app.get_matches();
 
-    let chdir = matches.value_of("chdir").unwrap();
-    let port = matches.value_of("port").unwrap();
+    let chdir = matches.value_of("chdir").unwrap(); // these shouldn't panic ever, since all have default_value
     let addr = matches.value_of("addr").unwrap();
+    let port = matches.value_of("port").unwrap();
     let bind_addr = format!("{}:{}", addr, port);
 
     std::env::set_var("RUST_LOG", std::env::var("RUST_LOG").unwrap_or("info".to_string()));
