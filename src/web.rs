@@ -28,9 +28,9 @@ fn handle_directory<'a, 'b>(
     req: &'b HttpRequest<PathBuf>,
 ) -> std::io::Result<HttpResponse> {
 
-    let mut paths: Vec<_> = std::fs::read_dir(&dir.path).unwrap()
-                                    .filter_map(|entry| if dir.is_visible(&entry) { entry.ok() } else {None})
-                                    .collect();
+    let rd = std::fs::read_dir(&dir.path)?;
+
+    let mut paths : Vec<_> = rd.filter_map(|entry| if dir.is_visible(&entry) { entry.ok() } else {None}).collect();
     paths.sort_by_key(|r| (!r.metadata().unwrap().file_type().is_dir(), r.file_name()));
 
 
