@@ -6,6 +6,7 @@ use htmlescape::encode_minimal as escape_html_entity;
 
 use channel;
 
+use std::fmt::Write;
 use std::path::PathBuf;
 use std;
 use bytes;
@@ -31,36 +32,43 @@ fn handle_directory<'a, 'b>(
                                     .filter_map(|entry| if dir.is_visible(&entry) { entry.ok() } else {None})
                                     .collect();
     paths.sort_by_key(|r| (!r.metadata().unwrap().file_type().is_dir(), r.file_name()));
+
+
+    let dir_tar_path = String::from(req.path().trim_right_matches('/')) + ".tar";
+    let tar_url = utf8_percent_encode(&dir_tar_path, DEFAULT_ENCODE_SET).to_string();
+
     let mut body = String::new();
-    body.push_str(&format!("<h1>Index of {index}</h1><small>[<a href={index}.tar>.tar</a> of whole directory]</small><hr>
-    <table>
-    <tr><td>📁 <a href='../'>../</a></td><td>Size</td></tr>\n", index=req.path()));
+    writeln!(body, "<h1>Index of {}</h1>", req.path()).unwrap();
+    writeln!(body, r#"<small>[<a href="{}">.tar</a> of whole directory]</small>"#, tar_url).unwrap();
+    writeln!(body, "<table>").unwrap();
+    writeln!(body, "<tr><td>📁 <a href='../'>../</a></td><td>Size</td></tr>").unwrap();
+
     for entry in paths {
         let meta = entry.metadata()?;
         let file_url = utf8_percent_encode(&entry.file_name().to_string_lossy(), DEFAULT_ENCODE_SET).to_string();
         let file_name = escape_html_entity(&entry.file_name().to_string_lossy());
         let size = meta.len();
 
-        body.push_str("<tr>");
+        write!(body, "<tr>").unwrap();
         if meta.file_type().is_dir() {
-            body.push_str(&format!(r#"<td>📂 <a href="{file_url}/">{file_name}/</a></td>"#, file_name=file_name, file_url=file_url));
-            body.push_str(&format!(r#"<td><small>[<a href="{file_url}.tar">.tar</a>]</small></td>"#, file_url=file_url));
+            writeln!(body, r#"<td>📂 <a href="{}/">{}/</a></td>"#, file_url, file_name).unwrap();
+            write!(body, r#"    <td><small>[<a href="{}.tar">.tar</a>]</small></td>"#, file_url).unwrap();
         } else {
-            body.push_str(&format!(r#"<td>🗎 <a href="{file_url}">{file_name}</a></td>"#, file_name=file_name, file_url=file_url));
-            body.push_str(&format!("<td>{size}</td>", size=size));
+            writeln!(body, r#"<td>🗎 <a href="{}">{}</a></td>"#, file_url, file_name).unwrap();
+            write!(body, "    <td>{}</td>", size).unwrap();
         }
-        body.push_str("</tr>\n");
+        writeln!(body, "</tr>").unwrap();
     }
-    body.push_str("</table><hr>\n");
+    writeln!(body, "</table>").unwrap();
 
-    let mut html = String::from(format!("<html>
-    <head>
-    <title>Index of {index}</title>
-    <style>h1 {{margin-bottom: 0}} table {{width:100%}} table td:nth-child(2) {{text-align:right}}</style>
-    </head>
-    <body bgcolor='white'>\n", index=req.path()));
-    html.push_str(body.as_str());
-    html.push_str("</body></html>\n");
+    let mut html = String::new();
+    writeln!(html, "<!DOCTYPE html>").unwrap();
+    writeln!(html, "<html><head>").unwrap();
+    writeln!(html, "<title>Index of {}</title>", req.path()).unwrap();
+    writeln!(html, "<style>\n{}</style>", include_str!("style.css")).unwrap();
+    writeln!(html, "</head>").unwrap();
+    writeln!(html, "<body>\n{}</body>", body).unwrap();
+    writeln!(html, "</html>").unwrap();
 
     Ok(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(html))
 }
