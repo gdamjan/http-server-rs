@@ -1,9 +1,10 @@
 [package]
 name = "http-server"
-version = "0.6.0"
+version = "0.7.0"
 authors = ["Damjan Georgievski <gdamjan@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+homepage = "https://github.com/gdamjan/http-server-rs"
 
 [dependencies]
 actix-web = "0.7"

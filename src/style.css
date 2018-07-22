@@ -1,4 +1,6 @@
-body {background-color: white}
+body {background-color: #282f34; color: #aeb9a6; font-family:monospace; font-size:10.5pt;}
+a { color: #adad9d; }
+footer a {color: darkgray; text-decoration: none;}
 h1 {margin-bottom: 0}
 table td:nth-child(2) {text-align:right}
 table {
@@ -7,6 +9,6 @@ table {
   padding: 0.5em 0;
   border-top: 1px;
   border-bottom: 1px;
-  border-color: #aaa;
+  border-color: #444;
   border-style: solid none;
 }

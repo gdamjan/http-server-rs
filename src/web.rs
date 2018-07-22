@@ -60,6 +60,8 @@ fn handle_directory<'a, 'b>(
         writeln!(body, "</tr>").unwrap();
     }
     writeln!(body, "</table>").unwrap();
+    writeln!(body, r#"<footer><a href="{}">{} {}</a></footer>"#,
+            env!("CARGO_PKG_HOMEPAGE"), env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION")).unwrap();
 
     let mut html = String::new();
     writeln!(html, "<!DOCTYPE html>").unwrap();
