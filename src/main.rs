@@ -44,7 +44,7 @@ fn main() -> Result<(), std::io::Error> {
     let addr = matches.value_of("addr").unwrap();
     let bind_addr = format!("{}:{}", addr, port);
 
-    std::env::set_var("RUST_LOG", "info");
+    std::env::set_var("RUST_LOG", std::env::var("RUST_LOG").unwrap_or("info".to_string()));
     env_logger::init();
 
     let root = std::path::Path::new(&chdir);
