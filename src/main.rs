@@ -54,8 +54,7 @@ fn main() -> Result<(), std::io::Error> {
 
     info!("Serving files from {:?}", root);
     server::new(move || web::create_app(&root))
-        .bind(&bind_addr)
-        .expect(&format!("Can't listen on {} ", bind_addr))
+        .bind(&bind_addr)?
         .start();
 
     let _ = sys.run();
