@@ -5,7 +5,7 @@ A simple http server like `python -m http.server` but:
 * written in rust with actix, should be faster
 * allow concurrency
 * download whole directories in .tar format
-* better auto index
+* fancier directory listing
 * maybe announce itself on mDNS (avahi)
 
 ```
