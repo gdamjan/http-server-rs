@@ -1,4 +1,5 @@
 use actix_web::{error, fs, App, HttpRequest, HttpResponse, Responder, middleware};
+use actix_web::dev::FromParam;
 use futures::Stream;
 use percent_encoding::{utf8_percent_encode, DEFAULT_ENCODE_SET};
 use htmlescape::encode_minimal as escape_html_entity;
@@ -9,9 +10,12 @@ use std::path::PathBuf;
 use std;
 use bytes;
 
-pub fn create_app(directory: &str) -> App {
-    let static_files = fs::StaticFiles::new(directory).unwrap().show_files_listing().files_listing_renderer(handle_directory);
-    App::new()
+pub fn create_app(directory: &PathBuf) -> App<PathBuf> {
+    let root = directory.to_path_buf();
+    let static_files = fs::StaticFiles::new(&root).unwrap()
+                            .show_files_listing()
+                            .files_listing_renderer(handle_directory);
+    App::with_state(root)
         .middleware(middleware::Logger::new(r#"%a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T"#))
         .resource(r"/{tail:.*}.tar", |r| r.get().f(handle_tar))
         .resource(r"/favicon.ico", |r| r.get().f(favicon_ico))
@@ -20,12 +24,12 @@ pub fn create_app(directory: &str) -> App {
 
 fn handle_directory<'a, 'b>(
     dir: &'a fs::Directory,
-    req: &'b HttpRequest,
+    req: &'b HttpRequest<PathBuf>,
 ) -> std::io::Result<HttpResponse> {
 
     let mut paths: Vec<_> = std::fs::read_dir(&dir.path).unwrap()
-                                              .filter_map(|entry| if dir.is_visible(&entry) { entry.ok() } else {None})
-                                              .collect();
+                                    .filter_map(|entry| if dir.is_visible(&entry) { entry.ok() } else {None})
+                                    .collect();
     paths.sort_by_key(|r| (!r.metadata().unwrap().file_type().is_dir(), r.file_name()));
     let mut body = String::new();
     body.push_str(&format!("<h1>Index of {index}</h1><small>[<a href={index}.tar>.tar</a> of whole directory]</small><hr>
@@ -61,19 +65,23 @@ fn handle_directory<'a, 'b>(
     Ok(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(html))
 }
 
-fn handle_tar(req: &HttpRequest) ->  impl Responder {
-    let path: PathBuf = req.match_info().query("tail")?;
-    if !(path.is_dir()) {
+fn handle_tar(req: &HttpRequest<PathBuf>) -> impl Responder {
+    let root = req.state();
+    let tail: String = req.match_info().query("tail")?;
+    let relpath = PathBuf::from_param(tail.trim_left_matches('/'))?;
+    let fullpath = root.join(&relpath).canonicalize()?;
+
+    if !(fullpath.is_dir()) {
         return Err(error::ErrorBadRequest("not a directory"));
     }
 
-    let stream = channel::stream_tar_in_thread(path);
+    let stream = channel::stream_tar_in_thread(fullpath);
     let resp = HttpResponse::Ok()
         .content_type("application/x-tar")
         .streaming(stream.map_err(|_e| error::ErrorBadRequest("stream error")));
     Ok(resp)
 }
 
-fn favicon_ico(_req: &HttpRequest) -> impl Responder {
+fn favicon_ico(_req: &HttpRequest<PathBuf>) -> impl Responder {
     bytes::Bytes::from_static(include_bytes!("favicon.png"))
 }

@@ -47,18 +47,16 @@ fn main() -> Result<(), std::io::Error> {
     std::env::set_var("RUST_LOG", std::env::var("RUST_LOG").unwrap_or("info".to_string()));
     env_logger::init();
 
-    let root = std::path::Path::new(&chdir);
+    let root = std::path::PathBuf::from(chdir).canonicalize()?;
     std::env::set_current_dir(&root).unwrap();
 
     let sys = actix::System::new("http_server_rs");
 
-    let directory = String::from(chdir);
-    server::new(move || web::create_app(&directory))
+    info!("Serving files from {:?}", root);
+    server::new(move || web::create_app(&root))
         .bind(&bind_addr)
         .expect(&format!("Can't listen on {} ", bind_addr))
         .start();
-
-    info!("Serving files from {}", chdir);
 
     let _ = sys.run();
     Ok(())
