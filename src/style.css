@@ -1,6 +1,6 @@
 body {background-color: #282f34; color: #aeb9a6; font-family:monospace; font-size:10.5pt;}
 a { color: #adad9d; }
-footer a {color: darkgray; text-decoration: none;}
+footer a {color: darkgray; text-decoration:none; font-size:smaller}
 h1 {margin-bottom: 0}
 table td:nth-child(2) {text-align:right}
 table {
