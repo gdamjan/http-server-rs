@@ -17,7 +17,7 @@ pub fn create_app(directory: &PathBuf) -> Result<App<PathBuf>, error::Error> {
                             .show_files_listing()
                             .files_listing_renderer(handle_directory);
     let app = App::with_state(root)
-        .middleware(middleware::Logger::new(r#"%a "%r" %s %b "%{Referer}i" "%{User-Agent}i" %T"#))
+        .middleware(middleware::Logger::default())
         .resource(r"/{tail:.*}.tar", |r| r.get().f(handle_tar))
         .resource(r"/favicon.ico", |r| r.get().f(favicon_ico))
         .handler("/", static_files);
