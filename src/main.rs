@@ -8,6 +8,11 @@ extern crate percent_encoding;
 #[macro_use] extern crate clap;
 #[macro_use] extern crate log;
 
+use std::alloc::System;
+
+#[global_allocator]
+static GLOBAL: System = System;
+
 mod channel;
 mod web;
 
