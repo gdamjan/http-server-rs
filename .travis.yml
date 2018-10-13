@@ -1,4 +1,5 @@
 language: rust
+sudo: false
 
 env:
   global:
@@ -14,8 +15,11 @@ matrix:
       rust: stable
       env: TARGET=x86_64-unknown-linux-gnu
       cache: cargo
+    - os: windows
+      rust: stable
+      env: TARGET=x86_64-pc-windows-msvc
+      cache: cargo
 
-sudo: false
 
 script:
   - cargo build --target $TARGET
