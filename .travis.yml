@@ -1,4 +1,6 @@
 language: rust
+cache: cargo
+rust: stable
 sudo: false
 
 env:
@@ -8,17 +10,11 @@ env:
 matrix:
   include:
     - os: osx
-      rust: stable
       env: TARGET=x86_64-apple-darwin
-      cache: cargo
     - os: linux
-      rust: stable
       env: TARGET=x86_64-unknown-linux-gnu
-      cache: cargo
     - os: windows
-      rust: stable
       env: TARGET=x86_64-pc-windows-msvc
-      cache: cargo
 
 
 script:
