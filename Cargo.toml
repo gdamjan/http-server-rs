@@ -16,6 +16,7 @@ futures = "0.1"
 tar = "0.4"
 percent-encoding = "1.0"
 htmlescape = "0.3"
+libmdns = "0.2"
 
 [profile.release]
 opt-level = 's'
