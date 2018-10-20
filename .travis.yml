@@ -7,10 +7,15 @@ env:
   global:
     - PROJECT_NAME=http-server
 
-os:
-  - linux
-  - osx
-  - windows
+matrix:
+  include:
+    - os: osx
+      env: TARGET=x86_64-apple-darwin
+    - os: linux
+      env: TARGET=x86_64-unknown-linux-gnu
+    - os: windows
+      env: TARGET=x86_64-pc-windows-msvc
+
 
 script:
   - cargo build --target $TARGET
