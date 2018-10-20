@@ -55,10 +55,11 @@ fn main() -> Result<(), std::io::Error> {
     let root = std::path::PathBuf::from(chdir).canonicalize()?;
     std::env::set_current_dir(&root)?;
 
+
     let sys = actix::System::new("http_server_rs");
 
     info!("Serving files from {:?}", root);
-    server::new(move || web::create_app(&root))
+    server::new(move || web::create_app(&root).unwrap())
         .bind(&bind_addr)?
         .start();
 
