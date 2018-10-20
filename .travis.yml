@@ -15,13 +15,11 @@ matrix:
     - os: windows
       env: TARGET=x86_64-pc-windows-msvc
 
-
 script:
-  - cargo build --target $TARGET
-  - cargo test --target $TARGET
+  - cargo build ${TRAVIS_TAG:+--release} --target $TARGET
+  - cargo test  ${TRAVIS_TAG:+--release} --target $TARGET
 
 before_deploy:
-  - cargo build --release --target $TARGET
   - strip target/$TARGET/release/http-server
   - zip "$PROJECT_NAME-$TRAVIS_TAG-$TARGET.zip" -j target/$TARGET/release/http-server
 
