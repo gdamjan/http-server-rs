@@ -1,5 +1,6 @@
 language: rust
 rust: stable
+cache: cargo
 sudo: false
 
 env:
@@ -20,8 +21,8 @@ script:
   - cargo test  ${TRAVIS_TAG:+--release} --target $TARGET
 
 before_deploy:
-  - strip target/$TARGET/release/http-server
-  - zip "$PROJECT_NAME-$TRAVIS_TAG-$TARGET.zip" -j target/$TARGET/release/http-server
+  - strip "target/$TARGET/release/$PROJECT_NAME"
+  - zip "$PROJECT_NAME-$TRAVIS_TAG-$TARGET.zip" -j "target/$TARGET/release/$PROJECT_NAME"
 
 deploy:
   provider: releases
@@ -37,12 +38,12 @@ deploy:
     condition: $TRAVIS_RUST_VERSION = stable
     tags: true
 
-# Need to cache the whole `.cargo` directory to keep .crates.toml for
-# cargo-update to work
-cache:
-  directories:
-    - /home/travis/.cargo
-
-# But don't cache the cargo registry
-before_cache:
-  - rm -rf /home/travis/.cargo/registry
+## Need to cache the whole `.cargo` directory to keep .crates.toml for
+## cargo-update to work
+#cache:
+#  directories:
+#    - ${TRAVIS_HOME}/.cargo
+#
+## But don't cache the cargo registry
+#before_cache:
+#  - rm -rf ${TRAVIS_HOME}/.cargo/registry
