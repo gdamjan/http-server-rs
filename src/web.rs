@@ -4,7 +4,7 @@ use futures::Stream;
 use percent_encoding::{utf8_percent_encode, DEFAULT_ENCODE_SET};
 use htmlescape::encode_minimal as escape_html_entity;
 
-use channel;
+use crate::channel;
 
 use std::fmt::Write;
 use std::path::PathBuf;

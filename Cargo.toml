@@ -5,6 +5,7 @@ authors = ["Damjan Georgievski <gdamjan@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 homepage = "https://github.com/gdamjan/http-server-rs"
+edition = "2018"
 
 [dependencies]
 actix-web = "0.7"
