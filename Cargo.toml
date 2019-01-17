@@ -1,6 +1,6 @@
 [package]
 name = "http-server"
-version = "0.8.0"
+version = "0.9.0"
 authors = ["Damjan Georgievski <gdamjan@gmail.com>"]
 license = "MIT"
 readme = "README.md"
