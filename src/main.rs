@@ -1,38 +1,30 @@
-extern crate actix_web;
-extern crate bytes;
-extern crate env_logger;
-extern crate futures;
-extern crate tar;
-extern crate htmlescape;
-extern crate percent_encoding;
-#[macro_use] extern crate clap;
-#[macro_use] extern crate log;
+use actix_web::server;
+use actix_web::actix;
+use env_logger;
+use log;
+use clap;
 
 mod channel;
 mod web;
 
-use actix_web::server;
-use actix_web::actix;
-use clap::Arg;
-
 fn main() -> Result<(), std::io::Error> {
-    let app = clap::App::new(crate_name!())
-                .author(crate_authors!("\n"))
-                .version(crate_version!())
-                .about(crate_description!())
-                .arg(Arg::with_name("chdir")
+    let app = clap::App::new(clap::crate_name!())
+                .author(clap::crate_authors!("\n"))
+                .version(clap::crate_version!())
+                .about(clap::crate_description!())
+                .arg(clap::Arg::with_name("chdir")
                     .long("chdir")
                     .value_name("DIRECTORY")
                     .help("Specify directory to server")
                     .default_value(".")
                     .takes_value(true))
-                .arg(Arg::with_name("addr")
+                .arg(clap::Arg::with_name("addr")
                     .long("bind")
                     .value_name("ADDRESS")
                     .help("Specify alternate bind address")
                     .default_value("0.0.0.0")
                     .takes_value(true))
-                .arg(Arg::with_name("port")
+                .arg(clap::Arg::with_name("port")
                     .value_name("PORT")
                     .help("Specify alternate port")
                     .default_value("8000")
@@ -53,7 +45,7 @@ fn main() -> Result<(), std::io::Error> {
 
     let sys = actix::System::new("http_server_rs");
 
-    info!("Serving files from {:?}", root);
+    log::info!("Serving files from {:?}", root);
     server::new(move || web::create_app(&root).unwrap())
         .bind(&bind_addr)?
         .start();
