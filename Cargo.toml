@@ -19,6 +19,6 @@ percent-encoding = "1.0"
 htmlescape = "0.3"
 
 [profile.release]
-opt-level = 's'
+opt-level = 'z'
 lto = true
 panic = 'abort'
