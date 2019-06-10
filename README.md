@@ -26,10 +26,15 @@ ARGS:
 
 ## FAQ
 
-* Q: why .tar and not .zip? A: you can't stream a zip file efficiently, it needs to seek and write to the beggining of a file.
+* Q: why .tar and not .zip? A: ~you can't stream a zip file efficiently, it needs to seek and write to the beggining of a file.~ will see.
+
 
 ## Release builds
 ```
 cargo build --release
 strip --strip-unneeded ./target/release/http-server
 ```
+
+## See also:
+
+* https://github.com/svenstaro/miniserve
