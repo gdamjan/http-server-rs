@@ -1,6 +1,5 @@
 language: rust
 rust: stable
-cache: cargo
 sudo: false
 
 env:
@@ -14,21 +13,20 @@ matrix:
     - os: linux
       env: TARGET=x86_64-unknown-linux-gnu
     - os: windows
-      env: TARGET=x86_64-pc-windows-msvc
+      env: TARGET=x86_64-pc-windows-msvc SUFFIX=.exe
 
 script:
   - cargo build ${TRAVIS_TAG:+--release} --target $TARGET
-  - cargo test  ${TRAVIS_TAG:+--release} --target $TARGET
 
 before_deploy:
-  - strip "target/$TARGET/release/$PROJECT_NAME"
-  - zip "$PROJECT_NAME-$TRAVIS_TAG-$TARGET.zip" -j "target/$TARGET/release/$PROJECT_NAME"
+  - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install zip ; fi
+  - strip "target/$TARGET/release/${PROJECT_NAME}${SUFFIX}"
+  - zip ${PROJECT_NAME}-${TRAVIS_TAG}-${TARGET}.zip -j "target/$TARGET/release/${PROJECT_NAME}${SUFFIX}"
 
 deploy:
   provider: releases
   api_key: $GIT_TOKEN
-  file_glob: true
-  file: ${PROJECT_NAME}-${TRAVIS_TAG}-${TARGET}*
+  file: ${PROJECT_NAME}-${TRAVIS_TAG}-${TARGET}.zip
   # don't delete the artifacts from previous phases
   skip_cleanup: true
   overwrite: true
@@ -40,10 +38,10 @@ deploy:
 
 ## Need to cache the whole `.cargo` directory to keep .crates.toml for
 ## cargo-update to work
-#cache:
-#  directories:
-#    - ${TRAVIS_HOME}/.cargo
-#
+cache:
+  directories:
+    - ${TRAVIS_HOME}/.cargo
+
 ## But don't cache the cargo registry
-#before_cache:
-#  - rm -rf ${TRAVIS_HOME}/.cargo/registry
+before_cache:
+  - rm -rf ${TRAVIS_HOME}/.cargo/registry
