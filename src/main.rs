@@ -1,13 +1,7 @@
-use actix_web::server;
-use actix_web::actix;
-use env_logger;
-use log;
-use clap;
-
 mod channel;
 mod web;
 
-fn main() -> Result<(), std::io::Error> {
+fn main() -> std::io::Result<()> {
     let app = clap::App::new(clap::crate_name!())
                 .author(clap::crate_authors!("\n"))
                 .version(clap::crate_version!())
@@ -42,14 +36,5 @@ fn main() -> Result<(), std::io::Error> {
     let root = std::path::PathBuf::from(chdir).canonicalize()?;
     std::env::set_current_dir(&root)?;
 
-
-    let sys = actix::System::new("http_server_rs");
-
-    log::info!("Serving files from {:?}", root);
-    server::new(move || web::create_app(&root).unwrap())
-        .bind(&bind_addr)?
-        .start();
-
-    let _ = sys.run();
-    Ok(())
+    web::run(&bind_addr, &root)
 }

@@ -1,5 +1,6 @@
-use actix_web::{error, fs, App, HttpRequest, HttpResponse, Responder, middleware};
-use actix_web::dev::FromParam;
+use actix_web::{error, HttpRequest, HttpResponse, Responder, web};
+use actix_web::dev::ServiceResponse;
+use actix_files as fs;
 use futures::Stream;
 use percent_encoding::{utf8_percent_encode, DEFAULT_ENCODE_SET};
 use htmlescape::encode_minimal as escape_html_entity;
@@ -8,26 +9,34 @@ use crate::channel;
 
 use std::fmt::Write;
 use std::path::PathBuf;
-use std;
-use bytes;
 
-pub fn create_app(directory: &PathBuf) -> Result<App<PathBuf>, error::Error> {
-    let root = directory.to_path_buf(); // practically makes a copy, so it can be used as state
-    let static_files = fs::StaticFiles::new(&root)?
-                            .show_files_listing()
-                            .files_listing_renderer(handle_directory);
-    let app = App::with_state(root)
-        .middleware(middleware::Logger::default())
-        .resource(r"/{tail:.*}.tar", |r| r.get().f(handle_tar))
-        .resource(r"/favicon.ico", |r| r.get().f(favicon_ico))
-        .handler("/", static_files);
-    Ok(app)
+
+pub fn run(bind_addr: &str, root: &PathBuf) -> std::io::Result<()> {
+    let root = root.clone();
+    actix_web::HttpServer::new(move || {
+        log::info!("Serving files from {:?}", &root);
+
+        let static_files = fs::Files::new("/", &root)
+            .show_files_listing()
+            .files_listing_renderer(handle_directory);
+
+        actix_web::App::new()
+            .data(root.clone())
+            .wrap(actix_web::middleware::Logger::default())
+            .service(web::resource(r"/{tail:.*}.tar").to(handle_tar))
+            .service(web::resource(r"/favicon.ico").to(favicon_ico))
+            .service(static_files)
+    })
+    .bind(bind_addr)?
+    .workers(1)
+    .run()
 }
+
 
 fn handle_directory<'a, 'b>(
     dir: &'a fs::Directory,
-    req: &'b HttpRequest<PathBuf>,
-) -> std::io::Result<HttpResponse> {
+    req: &'b HttpRequest,
+) -> Result<ServiceResponse, std::io::Error> {
 
     let rd = std::fs::read_dir(&dir.path)?;
 
@@ -39,7 +48,7 @@ fn handle_directory<'a, 'b>(
     paths.sort_by_key(|entry| (!optimistic_is_dir(entry), entry.file_name()));
 
 
-    let dir_tar_path = String::from(req.path().trim_right_matches('/')) + ".tar";
+    let dir_tar_path = String::from(req.path().trim_end_matches('/')) + ".tar";
     let tar_url = utf8_percent_encode(&dir_tar_path, DEFAULT_ENCODE_SET).to_string();
 
     let mut body = String::new();
@@ -77,13 +86,15 @@ fn handle_directory<'a, 'b>(
     writeln!(html, "<body>\n{}</body>", body).unwrap();
     writeln!(html, "</html>").unwrap();
 
-    Ok(HttpResponse::Ok().content_type("text/html; charset=utf-8").body(html))
+    let resp = HttpResponse::Ok().content_type("text/html; charset=utf-8").body(html);
+
+    Ok(ServiceResponse::new(req.clone(), resp))
 }
 
-fn handle_tar(req: &HttpRequest<PathBuf>) -> impl Responder {
-    let root = req.state();
-    let tail: String = req.match_info().query("tail")?;
-    let relpath = PathBuf::from_param(tail.trim_left_matches('/'))?;
+fn handle_tar(req: HttpRequest) -> impl Responder {
+    let root = req.app_data::<PathBuf>().unwrap();
+    let tail = req.match_info().query("tail");
+    let relpath = PathBuf::from(tail.trim_end_matches('/'));
     let fullpath = root.join(&relpath).canonicalize()?;
 
     if !(fullpath.is_dir()) {
@@ -97,7 +108,7 @@ fn handle_tar(req: &HttpRequest<PathBuf>) -> impl Responder {
     Ok(resp)
 }
 
-fn favicon_ico(_req: &HttpRequest<PathBuf>) -> impl Responder {
+fn favicon_ico() -> impl Responder {
     HttpResponse::Ok()
         .content_type("image/png")
         .header("Cache-Control", "only-if-cached, max-age=86400")
