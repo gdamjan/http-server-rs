@@ -1,4 +1,4 @@
-use actix_web::{error, HttpRequest, HttpResponse, Responder, web};
+use actix_web::{App, middleware, error, HttpServer, HttpRequest, HttpResponse, Responder, web};
 use actix_web::dev::ServiceResponse;
 use actix_files as fs;
 use futures::Stream;
@@ -13,16 +13,16 @@ use std::path::PathBuf;
 
 pub fn run(bind_addr: &str, root: &PathBuf) -> std::io::Result<()> {
     let root = root.clone();
-    actix_web::HttpServer::new(move || {
+    HttpServer::new(move || {
         log::info!("Serving files from {:?}", &root);
 
         let static_files = fs::Files::new("/", &root)
             .show_files_listing()
             .files_listing_renderer(handle_directory);
 
-        actix_web::App::new()
+        App::new()
             .data(root.clone())
-            .wrap(actix_web::middleware::Logger::default())
+            .wrap(middleware::Logger::default())
             .service(web::resource(r"/{tail:.*}.tar").to(handle_tar))
             .service(web::resource(r"/favicon.ico").to(favicon_ico))
             .service(static_files)
