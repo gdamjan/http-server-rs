@@ -16,8 +16,8 @@ env_logger = "*"
 log = "*"
 futures = "0.1"
 tar = "0.4"
-percent-encoding = "1.0"
-htmlescape = "0.3"
+percent-encoding = "2.0"
+v_htmlescape = "0.4"
 
 [profile.release]
 opt-level = 'z'

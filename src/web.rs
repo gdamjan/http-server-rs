@@ -2,8 +2,8 @@ use actix_web::{App, middleware, error, HttpServer, HttpRequest, HttpResponse, R
 use actix_web::dev::ServiceResponse;
 use actix_files as fs;
 use futures::Stream;
-use percent_encoding::{utf8_percent_encode, DEFAULT_ENCODE_SET};
-use htmlescape::encode_minimal as escape_html_entity;
+use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
+use v_htmlescape::escape as escape_html_entity;
 
 use crate::channel;
 
@@ -48,19 +48,18 @@ fn handle_directory<'a, 'b>(
     paths.sort_by_key(|entry| (!optimistic_is_dir(entry), entry.file_name()));
 
 
-    let dir_tar_path = String::from(req.path().trim_end_matches('/')) + ".tar";
-    let tar_url = utf8_percent_encode(&dir_tar_path, DEFAULT_ENCODE_SET).to_string();
+    let tar_url = req.path().trim_end_matches('/'); // this is already encoded
 
     let mut body = String::new();
-    writeln!(body, "<h1>Index of {}</h1>", req.path()).unwrap();
-    writeln!(body, r#"<small>[<a href="{}">.tar</a> of whole directory]</small>"#, tar_url).unwrap();
+    writeln!(body, "<h1>Index of {}</h1>", req.path()).unwrap(); // FIXME: decode from url, escape for html
+    writeln!(body, r#"<small>[<a href="{}.tar">.tar</a> of whole directory]</small>"#, tar_url).unwrap();
     writeln!(body, "<table>").unwrap();
     writeln!(body, "<tr><td>📁 <a href='../'>../</a></td><td>Size</td></tr>").unwrap();
 
     for entry in paths {
         let meta = entry.metadata()?;
-        let file_url = utf8_percent_encode(&entry.file_name().to_string_lossy(), DEFAULT_ENCODE_SET).to_string();
-        let file_name = escape_html_entity(&entry.file_name().to_string_lossy());
+        let file_url = utf8_percent_encode(&entry.file_name().to_string_lossy(), NON_ALPHANUMERIC).to_string();
+        let file_name = escape_html_entity(&entry.file_name().to_string_lossy()).to_string();
         let size = meta.len();
 
         write!(body, "<tr>").unwrap();
