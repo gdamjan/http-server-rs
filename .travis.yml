@@ -17,6 +17,7 @@ matrix:
 
 script:
   - cargo build ${TRAVIS_TAG:+--release} --target $TARGET
+  - size target/$TARGET/*/${PROJECT_NAME}${SUFFIX}
 
 before_deploy:
   - if [ "$TRAVIS_OS_NAME" = "windows" ]; then choco install zip ; fi
