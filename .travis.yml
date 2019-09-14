@@ -1,5 +1,6 @@
 language: rust
 rust: stable
+cache: cargo
 sudo: false
 
 env:
@@ -36,13 +37,3 @@ deploy:
     # channel to use to produce the release artifacts
     condition: $TRAVIS_RUST_VERSION = stable
     tags: true
-
-## Need to cache the whole `.cargo` directory to keep .crates.toml for
-## cargo-update to work
-cache:
-  directories:
-    - ${TRAVIS_HOME}/.cargo
-
-## But don't cache the cargo registry
-before_cache:
-  - rm -rf ${TRAVIS_HOME}/.cargo/registry
