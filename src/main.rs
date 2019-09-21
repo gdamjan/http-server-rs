@@ -1,4 +1,4 @@
-mod channel;
+mod threaded_archiver;
 mod web;
 
 fn main() -> std::io::Result<()> {

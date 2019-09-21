@@ -5,7 +5,7 @@ use futures::Stream;
 use percent_encoding::{utf8_percent_encode, NON_ALPHANUMERIC};
 use v_htmlescape::escape as escape_html_entity;
 
-use crate::channel;
+use crate::threaded_archiver;
 
 use std::fmt::Write;
 use std::path::PathBuf;
@@ -100,7 +100,7 @@ fn handle_tar(req: HttpRequest) -> impl Responder {
         return Err(error::ErrorBadRequest("not a directory"));
     }
 
-    let stream = channel::stream_tar_in_thread(fullpath);
+    let stream = threaded_archiver::stream_tar_in_thread(fullpath);
     let resp = HttpResponse::Ok()
         .content_type("application/x-tar")
         .streaming(stream.map_err(|_e| error::ErrorBadRequest("stream error")));
