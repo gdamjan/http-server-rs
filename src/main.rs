@@ -1,7 +1,10 @@
-mod threaded_archiver;
+// mod threaded_archiver;
+mod listing;
 mod web;
 
-fn main() -> std::io::Result<()> {
+
+#[actix_web::main]
+async fn main() -> std::io::Result<()> {
     let app = clap::App::new(clap::crate_name!())
         .author(clap::crate_authors!("\n"))
         .version(clap::crate_version!())
@@ -47,5 +50,5 @@ fn main() -> std::io::Result<()> {
     let root = std::path::PathBuf::from(chdir).canonicalize()?;
     std::env::set_current_dir(&root)?;
 
-    web::run(&bind_addr, &root)
+    web::run(&bind_addr, &root).await
 }
