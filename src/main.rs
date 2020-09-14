@@ -1,4 +1,4 @@
-// mod threaded_archiver;
+mod threaded_archiver;
 mod listing;
 mod web;
 
