@@ -13,7 +13,7 @@ pub async fn run(bind_addr: &str, root: &PathBuf) -> std::io::Result<()> {
         let static_files = Files::new("/", &root_)
             .show_files_listing()
             .redirect_to_slash_directory()
-            .files_listing_renderer(crate::listing::directory_listing);
+            .files_listing_renderer(crate::directory_listing::directory_listing);
 
         App::new()
             .data(root_.clone())
