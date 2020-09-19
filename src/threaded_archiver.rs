@@ -40,17 +40,17 @@ impl StreamWriter {
 impl io::Write for StreamWriter {
     fn write(&mut self, data: &[u8]) -> io::Result<usize> {
         let len = data.len();
-        futures::executor::block_on(
-            async move {
-                let buf = bytes::Bytes::copy_from_slice(data);
-                self.tx.send(buf).await;
-            }
-        );
+        futures::executor::block_on(async move {
+            let buf = bytes::Bytes::copy_from_slice(data);
+            self.tx.send(buf).await.ok(); // maybe propagate any errors back
+        });
         Ok(len)
     }
 
     fn flush(&mut self) -> io::Result<()> {
-        futures::executor::block_on(self.tx.flush());
+        futures::executor::block_on(async move {
+            self.tx.flush().await.ok()
+        });
         Ok(())
     }
 }
