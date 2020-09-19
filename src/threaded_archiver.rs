@@ -1,6 +1,4 @@
 use futures::prelude::*;
-use tar;
-use bytes;
 
 use std::io;
 use std::path::PathBuf;

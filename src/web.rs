@@ -46,7 +46,7 @@ async fn handle_tar(req: HttpRequest, root: web::Data<PathBuf>, web::Path(tail):
     }
 
     let stream = crate::threaded_archiver::stream_tar_in_thread(fullpath)
-        .map(|item| Ok::<_, Error>(item));
+        .map(Ok::<_, Error>);
     let res = HttpResponse::Ok()
         .content_type("application/x-tar")
         .streaming(stream);
@@ -54,7 +54,7 @@ async fn handle_tar(req: HttpRequest, root: web::Data<PathBuf>, web::Path(tail):
     Ok(res)
 }
 
-const FAVICON_ICO: &'static [u8] = include_bytes!("favicon.png");
+const FAVICON_ICO: &[u8] = include_bytes!("favicon.png");
 
 #[get("/favicon.ico")]
 async fn favicon_ico() -> impl Responder {
