@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/gdamjan/http-server-rs.svg?branch=master)](https://travis-ci.org/gdamjan/http-server-rs)
+[![Build Status](https://github.com/gdamjan/http-server-rs/workflows/build%20test%20lint/badge.svg)](https://github.com/gdamjan/http-server-rs/actions/)
 
 A simple http server like `python -m http.server` but:
 
