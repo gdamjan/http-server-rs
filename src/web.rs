@@ -47,11 +47,11 @@ async fn handle_tar(req: HttpRequest, root: web::Data<PathBuf>, web::Path(tail):
 
     let stream = crate::threaded_archiver::stream_tar_in_thread(fullpath)
         .map(Ok::<_, Error>);
-    let res = HttpResponse::Ok()
+    let response = HttpResponse::Ok()
         .content_type("application/x-tar")
         .streaming(stream);
 
-    Ok(res)
+    Ok(response)
 }
 
 const FAVICON_ICO: &[u8] = include_bytes!("favicon.png");
