@@ -32,11 +32,16 @@ pub async fn run(bind_addr: &str, root: &PathBuf) -> std::io::Result<()> {
 #[get("/{tail:.*}.tar")]
 async fn handle_tar(req: HttpRequest, root: web::Data<PathBuf>, web::Path(tail): web::Path<String>) -> impl Responder {
     let relpath = PathBuf::from(tail.trim_end_matches('/'));
-    let fullpath = root.join(&relpath).canonicalize()
-        .map_err(|err| error::InternalError::new(err, StatusCode::INTERNAL_SERVER_ERROR))?;
+    let fullpath = root.join(&relpath)
+            .canonicalize()
+            .map_err(|err| error::InternalError::new(err, StatusCode::NOT_FOUND))?;
 
-    if fullpath.is_file() {
-        return NamedFile::open(fullpath)
+
+    // if a .tar already exists, just return it as-is
+    let mut fullpath_tar = fullpath.clone();
+    fullpath_tar.set_extension("tar");
+    if fullpath_tar.is_file() {
+        return NamedFile::open(fullpath_tar)
             .map_err(|err| error::InternalError::new(err, StatusCode::INTERNAL_SERVER_ERROR))?
             .into_response(&req);
     }
