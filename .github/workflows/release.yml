@@ -1,8 +1,9 @@
 name: Make a release
 
 on:
-  repository_dispatch:
-    types: [tag-created]
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   release:
@@ -14,26 +15,30 @@ jobs:
           - os: ubuntu-latest
             artifact_name: http-server
             asset_name: http-server-$tag-linux-amd64.zip
+            zipcmd: zip -j
           - os: macos-latest
             artifact_name: http-server
             asset_name: http-server-$tag-macos-amd64.zip
+            zipcmd: zip -j
           - os: windows-latest
             artifact_name: http-server.exe
             asset_name: http-server-$tag-windows.zip
+            zipcmd: 7z a -tzip
     steps:
       - uses: actions/checkout@v2
 
       - name: Build project
         run: cargo build --release --locked
 
-      - name: Pre-release
+      - name: Post-build release preparation
         run: |
               strip target/release/${{ matrix.artifact_name }}
-              zip ${{ matrix.asset_name }} -j target/release/${{ matrix.artifact_name }}
+              ${{ matrix.zipcmd}} release.zip target/release/${{ matrix.artifact_name }}
 
       - name: Upload binary to release
-        uses: svenstaro/upload-release-action@v1-release
+        uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ matrix.asset_name }}
-          tag: ${{ github.event.client_payload.new_version }}
+          file: release.zip
+          asset_name: ${{ matrix.asset_name }}
+          tag: ${{ github.ref }}
