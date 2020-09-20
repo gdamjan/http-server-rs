@@ -42,7 +42,7 @@ async fn handle_tar(req: HttpRequest, root: web::Data<PathBuf>, web::Path(tail):
     }
 
     if !(fullpath.is_dir()) {
-        return Ok(HttpResponse::NotFound().body("Directory not found"));
+        return Ok(HttpResponse::NotFound().body("Directory not found\n"));
     }
 
     let stream = crate::threaded_archiver::stream_tar_in_thread(fullpath)
