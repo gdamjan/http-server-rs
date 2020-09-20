@@ -53,7 +53,7 @@ dependencies = [
  "mime",
  "mime_guess",
  "percent-encoding",
- "v_htmlescape 0.10.0",
+ "v_htmlescape",
 ]
 
 [[package]]
@@ -870,7 +870,7 @@ dependencies = [
  "log",
  "percent-encoding",
  "tar",
- "v_htmlescape 0.4.5",
+ "v_htmlescape",
 ]
 
 [[package]]
@@ -1802,33 +1802,12 @@ dependencies = [
 
 [[package]]
 name = "v_escape"
-version = "0.7.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "660b101c07b5d0863deb9e7fb3138777e858d6d2a79f9e6049a27d1cc77c6da6"
-dependencies = [
- "v_escape_derive 0.5.6",
-]
-
-[[package]]
-name = "v_escape"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7b2d5ca56f0412d5ad5e642202e5c8fb61b61ad39435a53ed501fbd45380e8d3"
 dependencies = [
  "buf-min",
- "v_escape_derive 0.8.1",
-]
-
-[[package]]
-name = "v_escape_derive"
-version = "0.5.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c2ca2a14bc3fc5b64d188b087a7d3a927df87b152e941ccfbc66672e20c467ae"
-dependencies = [
- "nom",
- "proc-macro2",
- "quote",
- "syn",
+ "v_escape_derive",
 ]
 
 [[package]]
@@ -1845,22 +1824,12 @@ dependencies = [
 
 [[package]]
 name = "v_htmlescape"
-version = "0.4.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e33e939c0d8cf047514fb6ba7d5aac78bc56677a6938b2ee67000b91f2e97e41"
-dependencies = [
- "cfg-if",
- "v_escape 0.7.4",
-]
-
-[[package]]
-name = "v_htmlescape"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f5fd25529cb2f78527b5ee507bcfb357b26d057b5e480853c26d49a4ead5c629"
 dependencies = [
  "cfg-if",
- "v_escape 0.12.1",
+ "v_escape",
 ]
 
 [[package]]
