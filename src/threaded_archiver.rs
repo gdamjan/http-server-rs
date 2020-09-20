@@ -1,7 +1,7 @@
 use futures::prelude::*;
 
 use std::io;
-use std::path::PathBuf;
+use std::path::Path;
 use std::thread;
 
 /*
@@ -12,12 +12,13 @@ use std::thread;
 type Stream = futures::channel::mpsc::Receiver<bytes::Bytes>;
 type Sender = futures::channel::mpsc::Sender<bytes::Bytes>;
 
-pub fn stream_tar_in_thread(path: PathBuf) -> Stream {
+pub fn stream_tar_in_thread<P>(path: P) -> Stream
+    where P: AsRef<Path> + Send + 'static {
     let (writer, stream) = StreamWriter::new(64);
 
     thread::spawn(move || {
         let mut a = tar::Builder::new(writer);
-        let last_path_component = path.file_name().unwrap();
+        let last_path_component = path.as_ref().file_name().unwrap();
         a.mode(tar::HeaderMode::Deterministic);
         a.append_dir_all(last_path_component, &path)
             .unwrap_or_else(|e| println!("{}", e));
