@@ -1,5 +1,4 @@
-use actix_web::{get, error, middleware, web, App, Error, HttpServer, HttpRequest, HttpResponse, Responder};
-use actix_web::http::StatusCode;
+use actix_web::{get, middleware, web, App, Error, HttpServer, HttpRequest, HttpResponse, Responder};
 use actix_files::{Files, NamedFile};
 use futures::StreamExt;
 
@@ -16,7 +15,7 @@ pub async fn run(bind_addr: &str, root: &PathBuf) -> std::io::Result<()> {
             .files_listing_renderer(crate::directory_listing::directory_listing);
 
         App::new()
-            .data(root_.clone())
+            .app_data(root_.clone())
             .wrap(middleware::Logger::default())
             .service(favicon_ico)
             .service(handle_tar)
@@ -30,24 +29,24 @@ pub async fn run(bind_addr: &str, root: &PathBuf) -> std::io::Result<()> {
 }
 
 #[get("/{tail:.*}.tar")]
-async fn handle_tar(req: HttpRequest, root: web::Data<PathBuf>, web::Path(tail): web::Path<String>) -> impl Responder {
+async fn handle_tar(req: HttpRequest, root: web::Data<PathBuf>, tail: web::Path<String>) -> impl Responder {
     let relpath = PathBuf::from(tail.trim_end_matches('/'));
     let fullpath = root.join(&relpath)
             .canonicalize()
-            .map_err(|err| error::InternalError::new(err, StatusCode::NOT_FOUND))?;
+            .unwrap();
 
 
     // if a .tar already exists, just return it as-is
     let mut fullpath_tar = fullpath.clone();
     fullpath_tar.set_extension("tar");
     if fullpath_tar.is_file() {
-        return NamedFile::open(fullpath_tar)
-            .map_err(|err| error::InternalError::new(err, StatusCode::INTERNAL_SERVER_ERROR))?
+        return NamedFile::open_async(fullpath_tar).await
+            .unwrap()
             .into_response(&req);
     }
 
     if !(fullpath.is_dir()) {
-        return Ok(HttpResponse::NotFound().body("Directory not found\n"));
+        return HttpResponse::NotFound().body("Directory not found\n");
     }
 
     let stream = crate::threaded_archiver::stream_tar_in_thread(fullpath)
@@ -56,7 +55,7 @@ async fn handle_tar(req: HttpRequest, root: web::Data<PathBuf>, web::Path(tail):
         .content_type("application/x-tar")
         .streaming(stream);
 
-    Ok(response)
+    response
 }
 
 const FAVICON_ICO: &[u8] = include_bytes!("favicon.png");
@@ -65,6 +64,6 @@ const FAVICON_ICO: &[u8] = include_bytes!("favicon.png");
 async fn favicon_ico() -> impl Responder {
     HttpResponse::Ok()
         .content_type("image/png")
-        .header("Cache-Control", "only-if-cached, max-age=86400")
+        .append_header(("Cache-Control", "only-if-cached, max-age=86400"))
         .body(FAVICON_ICO)
 }
