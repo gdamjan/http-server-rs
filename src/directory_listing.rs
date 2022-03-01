@@ -1,10 +1,10 @@
 use actix_files::Directory;
-use actix_web::{HttpRequest, HttpResponse};
 use actix_web::dev::ServiceResponse;
-use std::path::Path;
+use actix_web::{HttpRequest, HttpResponse};
 use percent_encoding::{utf8_percent_encode, CONTROLS}; // NON_ALPHANUMERIC
-use v_htmlescape::escape as escape_html_entity;
 use std::fmt::Write;
+use std::path::Path;
+use v_htmlescape::escape as escape_html_entity;
 
 macro_rules! encode_file_url {
     ($path:ident) => {
@@ -31,9 +31,7 @@ pub fn directory_listing(
         if dir.is_visible(&entry) {
             let entry = entry.unwrap();
             let p = match entry.path().strip_prefix(&dir.path) {
-                Ok(p) if cfg!(windows) => {
-                    base.join(p).to_string_lossy().replace("\\", "/")
-                }
+                Ok(p) if cfg!(windows) => base.join(p).to_string_lossy().replace("\\", "/"),
                 Ok(p) => base.join(p).to_string_lossy().into_owned(),
                 Err(_) => continue,
             };
@@ -66,7 +64,8 @@ pub fn directory_listing(
     let header = format!(
         "<h1>Index of {}/</h1>\n\
          <small>[<a href='{}.tar'>.tar</a> of whole directory]</small>",
-        index_of, if index_of.is_empty() { "_" } else { index_of }
+        index_of,
+        if index_of.is_empty() { "_" } else { index_of }
     );
 
     let footer = format!(

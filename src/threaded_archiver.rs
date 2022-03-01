@@ -13,7 +13,9 @@ type Stream = futures::channel::mpsc::Receiver<bytes::Bytes>;
 type Sender = futures::channel::mpsc::Sender<bytes::Bytes>;
 
 pub fn stream_tar_in_thread<P>(path: P) -> Stream
-    where P: AsRef<Path> + Send + 'static {
+where
+    P: AsRef<Path> + Send + 'static,
+{
     let (writer, stream) = StreamWriter::new(64);
 
     thread::spawn(move || {
@@ -49,9 +51,7 @@ impl io::Write for StreamWriter {
     }
 
     fn flush(&mut self) -> io::Result<()> {
-        futures::executor::block_on(async move {
-            self.tx.flush().await.ok()
-        });
+        futures::executor::block_on(async move { self.tx.flush().await.ok() });
         Ok(())
     }
 }

@@ -1,7 +1,6 @@
-mod threaded_archiver;
 mod directory_listing;
+mod threaded_archiver;
 mod web;
-
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
