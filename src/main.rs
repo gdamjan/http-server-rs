@@ -5,13 +5,13 @@ mod web;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let app = clap::App::new(clap::crate_name!())
+    let app = clap::Command::new(clap::crate_name!())
         .author(clap::crate_authors!("\n"))
         .version(clap::crate_version!())
         .about(clap::crate_description!())
         .arg(
-            clap::Arg::with_name("chdir")
-                .short("w")
+            clap::Arg::new("chdir")
+                .short('w')
                 .long("chdir")
                 .value_name("DIRECTORY")
                 .help("directory to serve")
@@ -19,8 +19,8 @@ async fn main() -> std::io::Result<()> {
                 .takes_value(true),
         )
         .arg(
-            clap::Arg::with_name("addr")
-                .short("b")
+            clap::Arg::new("addr")
+                .short('b')
                 .long("bind")
                 .value_name("ADDRESS")
                 .help("bind address")
@@ -28,7 +28,7 @@ async fn main() -> std::io::Result<()> {
                 .takes_value(true),
         )
         .arg(
-            clap::Arg::with_name("port")
+            clap::Arg::new("port")
                 .value_name("PORT")
                 .help("Specify alternate port")
                 .default_value("8000")
