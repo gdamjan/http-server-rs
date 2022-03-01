@@ -5,7 +5,7 @@ mod web;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let app = clap::App::new(clap::crate_name!())
+    let app = clap::Command::new(clap::crate_name!())
         .author(clap::crate_authors!("\n"))
         .version(clap::crate_version!())
         .about(clap::crate_description!())
