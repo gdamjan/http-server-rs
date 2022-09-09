@@ -23,3 +23,5 @@ v_htmlescape = "0.14.1"
 opt-level = 'z'
 lto = true
 panic = 'abort'
+strip = true
+codegen-units = 1

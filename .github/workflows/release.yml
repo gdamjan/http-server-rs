@@ -25,15 +25,13 @@ jobs:
             asset_name: http-server-$tag-windows.zip
             zipcmd: 7z a -tzip
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Build project
         run: cargo build --release --locked
 
-      - name: Post-build release preparation
-        run: |
-              strip target/release/${{ matrix.artifact_name }}
-              ${{ matrix.zipcmd}} release.zip target/release/${{ matrix.artifact_name }}
+      - name: make release.zip
+        run: ${{ matrix.zipcmd}} release.zip target/release/${{ matrix.artifact_name }}
 
       - name: Upload binary to release
         uses: svenstaro/upload-release-action@v2
