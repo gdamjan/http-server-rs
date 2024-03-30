@@ -17,17 +17,14 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            artifact_name: http-server
-            asset_name: http-server-$tag-linux-amd64.zip
-            zipcmd: zip -j
+            target_file: http-server
+            artifact: http-server-${{ github.ref_name }}-linux-amd64
           - os: macos-latest
-            artifact_name: http-server
-            asset_name: http-server-$tag-macos-amd64.zip
-            zipcmd: zip -j
+            target_file: http-server
+            artifact: http-server-${{ github.ref_name }}-macos-amd64
           - os: windows-latest
-            artifact_name: http-server.exe
-            asset_name: http-server-$tag-windows.zip
-            zipcmd: 7z a -tzip
+            target_file: http-server.exe
+            artifact: http-server-${{ github.ref_name }}-windows.exe
     steps:
       - uses: actions/checkout@v4
       - uses: sigstore/cosign-installer@v3.4.0
@@ -35,13 +32,17 @@ jobs:
       - name: Build project
         run: cargo build --release --locked
 
-      - name: make release.zip
-        run: ${{ matrix.zipcmd}} ${{ matrix.asset_name }} target/release/${{ matrix.artifact_name }}
+      - name: Prepare artifact
+        run: cp target/release/${{ matrix.target_file }} ${{ matrix.artifact }}
 
-      - name: Sign release.zip
-        run: cosign sign-blob --yes --output-signature ${{ matrix.asset_name }}.sig --output-certificate ${{ matrix.asset_name }}.cert ${{ matrix.asset_name }}
+      - name: Sign artifact
+        run: |
+          cosign sign-blob --yes \
+            --output-signature ${{ matrix.artifact }}.sig \
+            --output-certificate ${{ matrix.artifact }}.cert \
+            ${{ matrix.artifact }}
 
-      - name: Upload artifacts to release
+      - name: Upload artifacts to github-releases
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
