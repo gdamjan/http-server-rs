@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+  id-token: write
+
 jobs:
   release:
     name: Build and Release
@@ -25,18 +29,22 @@ jobs:
             asset_name: http-server-$tag-windows.zip
             zipcmd: 7z a -tzip
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+      - uses: sigstore/cosign-installer@v3.4.0
 
       - name: Build project
         run: cargo build --release --locked
 
       - name: make release.zip
-        run: ${{ matrix.zipcmd}} release.zip target/release/${{ matrix.artifact_name }}
+        run: ${{ matrix.zipcmd}} ${{ matrix.asset_name }} target/release/${{ matrix.artifact_name }}
 
-      - name: Upload binary to release
+      - name: Sign release.zip
+        run: cosign sign-blob --yes --output-signature ${{ matrix.asset_name }}.sig --output-certificate ${{ matrix.asset_name }}.cert ${{ matrix.asset_name }}
+
+      - name: Upload artifacts to release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: release.zip
-          asset_name: ${{ matrix.asset_name }}
+          file: http-server-*
+          file_glob: true
           tag: ${{ github.ref }}
