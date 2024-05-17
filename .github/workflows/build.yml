@@ -1,6 +1,9 @@
 name: build test lint
 
-on: [push]
+on:
+  push:
+    branches: [main]
+  pull_request:
 
 jobs:
   build:
@@ -13,22 +16,22 @@ jobs:
           - rust: nightly
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: ${{ matrix.rust }}
 
-      - name: build
+      - name: Build
         uses: actions-rs/cargo@v1
         with:
           command: build
 
-      - name: test
+      - name: Test
         uses: actions-rs/cargo@v1
         with:
           command: test
 
-      - name: lint
+      - name: Annotate commit with clippy warnings
         uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
