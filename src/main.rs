@@ -2,6 +2,10 @@ mod directory_listing;
 mod threaded_archiver;
 mod web;
 
+use if_addrs;
+use log::error;
+
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     let app = clap::Command::new(clap::crate_name!())
