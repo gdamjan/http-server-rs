@@ -40,10 +40,6 @@ async fn main() -> std::io::Result<()> {
     let port = matches.value_of("port").unwrap();
     let bind_addr = format!("{}:{}", addr, port);
 
-    std::env::set_var(
-        "RUST_LOG",
-        std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string()),
-    );
     env_logger::init();
 
     let root = std::path::PathBuf::from(chdir).canonicalize()?;
