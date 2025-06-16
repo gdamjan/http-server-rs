@@ -1,46 +1,42 @@
+use std::path::PathBuf;
+
+use clap::{arg, command, value_parser};
+
 mod directory_listing;
 mod threaded_archiver;
 mod web;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let app = clap::Command::new(clap::crate_name!())
-        .author(clap::crate_authors!("\n"))
-        .version(clap::crate_version!())
-        .about(clap::crate_description!())
+    let args = command!()
         .arg(
-            clap::Arg::new("chdir")
-                .short('w')
-                .long("chdir")
-                .value_name("DIRECTORY")
-                .help("directory to serve")
-                .default_value("."),
+            arg!(
+                -w --chdir <DIRECTORY> "directory to serve"
+            )
+            .value_parser(value_parser!(PathBuf))
+            .default_value("."),
         )
         .arg(
-            clap::Arg::new("addr")
-                .short('b')
-                .long("bind")
-                .value_name("ADDRESS")
-                .help("bind address")
-                .default_value("0.0.0.0"),
+            arg!(
+                -b --bind <ADDRESS> "bind address"
+            )
+            .default_value("0.0.0.0"),
         )
         .arg(
-            clap::Arg::new("port")
-                .value_name("PORT")
-                .help("Specify alternate port")
+            arg!([PORT] "Network port to use")
                 .default_value("8000")
-                .index(1),
+                .value_parser(value_parser!(u16)),
         );
-    let matches = app.get_matches();
+    let matches = args.get_matches();
 
-    let chdir = matches.get_one::<String>("chdir").unwrap(); // these shouldn't panic ever, since all have default_value
-    let addr = matches.get_one::<String>("addr").unwrap();
-    let port = matches.get_one::<String>("port").unwrap();
+    let chdir = matches.get_one::<PathBuf>("chdir").unwrap(); // these shouldn't panic ever, since all have default_value
+    let addr = matches.get_one::<String>("bind").unwrap();
+    let port = matches.get_one::<u16>("PORT").unwrap();
     let bind_addr = format!("{}:{}", addr, port);
 
     env_logger::init();
 
-    let root = std::path::PathBuf::from(chdir).canonicalize()?;
+    let root = chdir.canonicalize()?;
     std::env::set_current_dir(&root)?;
 
     web::run(&bind_addr, &root).await
