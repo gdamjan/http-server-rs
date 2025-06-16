@@ -1,6 +1,6 @@
 use actix_files::{Files, NamedFile};
 use actix_web::{
-    get, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder,
+    App, Error, HttpRequest, HttpResponse, HttpServer, Responder, get, middleware, web,
 };
 use futures::StreamExt;
 
@@ -52,11 +52,9 @@ async fn handle_tar(
     }
 
     let stream = crate::threaded_archiver::stream_tar_in_thread(fullpath).map(Ok::<_, Error>);
-    let response = HttpResponse::Ok()
+    HttpResponse::Ok()
         .content_type("application/x-tar")
-        .streaming(stream);
-
-    response
+        .streaming(stream)
 }
 
 const FAVICON_ICO: &[u8] = include_bytes!("favicon.png");
