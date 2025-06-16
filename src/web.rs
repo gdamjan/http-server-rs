@@ -15,7 +15,7 @@ pub async fn run(bind_addr: &str, root: &PathBuf) -> std::io::Result<()> {
             .files_listing_renderer(crate::directory_listing::directory_listing);
 
         App::new()
-            .app_data(root_.clone())
+            .app_data(web::Data::new(root_.clone()))
             .wrap(middleware::Logger::default())
             .service(favicon_ico)
             .service(handle_tar)
