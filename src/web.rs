@@ -35,7 +35,7 @@ async fn handle_tar(
     tail: web::Path<String>,
 ) -> impl Responder {
     let relpath = PathBuf::from(tail.trim_end_matches('/'));
-    let fullpath = root.join(&relpath).canonicalize().unwrap();
+    let fullpath = root.join(&relpath);
 
     // if a .tar already exists, just return it as-is
     let mut fullpath_tar = fullpath.clone();
