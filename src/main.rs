@@ -3,7 +3,7 @@ mod threaded_archiver;
 mod web;
 
 use if_addrs;
-use log::error;
+use log::{error, info};
 
 
 #[actix_web::main]
@@ -85,6 +85,7 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
 
     let root = std::path::PathBuf::from(chdir).canonicalize()?;
+    info!("root {:?}", root);
     std::env::set_current_dir(&root)?;
 
     web::run(&bind_addr, &root).await
