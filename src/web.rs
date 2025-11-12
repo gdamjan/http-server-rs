@@ -1,14 +1,14 @@
 use actix_files::{Files, NamedFile};
 use actix_web::{
-    get, middleware, web, App, Error, HttpRequest, HttpResponse, HttpServer, Responder,
+    App, Error, HttpRequest, HttpResponse, HttpServer, Responder, get, middleware, web,
 };
 use futures::StreamExt;
+use log::info;
 
 use std::path::PathBuf;
 
 pub async fn run(bind_addr: &str, root: &PathBuf) -> std::io::Result<()> {
     let root_ = root.clone();
-    let data_root = web::Data::new(root_.clone());
     let s = HttpServer::new(move || {
         let static_files = Files::new("/", &root_)
             .show_files_listing()
@@ -16,7 +16,7 @@ pub async fn run(bind_addr: &str, root: &PathBuf) -> std::io::Result<()> {
             .files_listing_renderer(crate::directory_listing::directory_listing);
 
         App::new()
-            .app_data(data_root.clone())
+            .app_data(web::Data::new(root_.clone()))
             .wrap(middleware::Logger::default())
             .service(favicon_ico)
             .service(handle_tar)
@@ -35,31 +35,23 @@ async fn handle_tar(
     root: web::Data<PathBuf>,
     tail: web::Path<String>,
 ) -> impl Responder {
-    let rel = tail.trim_end_matches('/');
-    //
-    let candidate_tar = root.join(format!("{}.tar", rel));
-
-    if candidate_tar.is_file() {
-        match NamedFile::open_async(candidate_tar).await {
-            Ok(named) => return named.into_response(&req),
-            Err(e) => {
-                log::error!("Failed to open existing tar file: {}", e);
-                return HttpResponse::InternalServerError().body("Failed to open tar\n");
-            }
-        }
-    }
-     
-    let fullpath = match root.join(&rel).canonicalize() {
-        Ok(p) => p,
-        Err(e) => {
-            log::warn!("canonicalize failed for {:?}: {}", rel, e);
-            return HttpResponse::NotFound().body("Directory not found\n");
-        }
-    };
+    let relpath = PathBuf::from(tail.trim_end_matches('/'));
+    log::warn!("*relpath*: {:?}", relpath);
+    let fullpath = root.join(&relpath);
 
     if !fullpath.starts_with(root.as_path()) {
         log::warn!("requested path escapes root: {:?}", fullpath);
         return HttpResponse::Forbidden().body("Forbidden\n");
+    }
+
+    // if a .tar already exists, just return it as-is
+    let mut fullpath_tar = fullpath.clone();
+    fullpath_tar.set_extension("tar");
+    if fullpath_tar.is_file() {
+        return NamedFile::open_async(fullpath_tar)
+            .await
+            .unwrap()
+            .into_response(&req);
     }
 
     if !(fullpath.is_dir()) {
@@ -67,11 +59,9 @@ async fn handle_tar(
     }
 
     let stream = crate::threaded_archiver::stream_tar_in_thread(fullpath).map(Ok::<_, Error>);
-    let response = HttpResponse::Ok()
+    HttpResponse::Ok()
         .content_type("application/x-tar")
-        .streaming(stream);
-
-    response
+        .streaming(stream)
 }
 
 const FAVICON_ICO: &[u8] = include_bytes!("favicon.png");
