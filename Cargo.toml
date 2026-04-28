@@ -17,7 +17,7 @@ log = "*"
 futures = "0.3.24"
 tar = "0.4.38"
 percent-encoding = "2.2"
-v_htmlescape = "0.15"
+v_htmlescape = "0.17"
 
 [profile.release]
 opt-level = 'z'

@@ -1,10 +1,10 @@
 use actix_files::Directory;
 use actix_web::dev::ServiceResponse;
 use actix_web::{HttpRequest, HttpResponse};
-use percent_encoding::{utf8_percent_encode, CONTROLS}; // NON_ALPHANUMERIC
+use percent_encoding::{CONTROLS, utf8_percent_encode}; // NON_ALPHANUMERIC
 use std::fmt::Write;
 use std::path::Path;
-use v_htmlescape::escape as escape_html_entity;
+use v_htmlescape::escape_fmt;
 
 macro_rules! encode_file_url {
     ($path:ident) => {
@@ -15,7 +15,7 @@ macro_rules! encode_file_url {
 // " -- &quot;  & -- &amp;  ' -- &#x27;  < -- &lt;  > -- &gt;  / -- &#x2f;
 macro_rules! encode_file_name {
     ($entry:ident) => {
-        escape_html_entity(&$entry.file_name().to_string_lossy())
+        escape_fmt(&$entry.file_name().to_string_lossy())
     };
 }
 
