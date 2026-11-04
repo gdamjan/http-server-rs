@@ -41,10 +41,7 @@ async fn handle_tar(
     let mut fullpath_tar = fullpath.clone();
     fullpath_tar.set_extension("tar");
     if fullpath_tar.is_file() {
-        return NamedFile::open_async(fullpath_tar)
-            .await
-            .unwrap()
-            .into_response(&req);
+        return NamedFile::open(fullpath_tar).unwrap().into_response(&req);
     }
 
     if !(fullpath.is_dir()) {
