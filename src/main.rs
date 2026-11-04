@@ -2,8 +2,8 @@ use std::path::PathBuf;
 
 use clap::{arg, command, value_parser};
 
+mod archiver;
 mod directory_listing;
-mod threaded_archiver;
 mod web;
 
 #[actix_web::main]
