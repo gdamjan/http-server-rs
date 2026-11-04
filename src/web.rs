@@ -1,8 +1,5 @@
 use actix_files::{Files, NamedFile};
-use actix_web::{
-    App, Error, HttpRequest, HttpResponse, HttpServer, Responder, get, middleware, web,
-};
-use futures::StreamExt;
+use actix_web::{App, HttpRequest, HttpResponse, HttpServer, Responder, get, middleware, web};
 
 use std::path::PathBuf;
 
@@ -48,7 +45,7 @@ async fn handle_tar(
         return HttpResponse::NotFound().body("Directory not found\n");
     }
 
-    let stream = crate::threaded_archiver::stream_tar_in_thread(fullpath).map(Ok::<_, Error>);
+    let stream = crate::archiver::stream_tar(fullpath);
     HttpResponse::Ok()
         .content_type("application/x-tar")
         .streaming(stream)

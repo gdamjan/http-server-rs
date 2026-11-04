@@ -10,14 +10,14 @@ edition = "2024"
 [dependencies]
 actix-web = "4.1.0"
 actix-files = "0.7"
-bytes = "1.2.1"
 clap = { version = "4", features = ["cargo"] }
 env_logger = "*"
 log = "*"
-futures = "0.3.24"
-tar = "0.4.38"
 percent-encoding = "2.2"
 v_htmlescape = "0.17"
+async-tar = { version = "0.6.1", default-features = false, features = ["runtime-tokio"] }
+tokio = { version = "1.54.1", features = ["io-util"] }
+tokio-util = { version = "0.7.20", features = ["io"] }
 
 [profile.release]
 opt-level = 'z'
