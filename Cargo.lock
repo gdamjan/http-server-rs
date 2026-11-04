@@ -756,7 +756,7 @@ checksum = "2149c4b4b83390c71fab669730347d578ec6bdf759f2160c581ad8b8819733b4"
 
 [[package]]
 name = "http-server"
-version = "0.15.0"
+version = "0.16.0"
 dependencies = [
  "actix-files",
  "actix-web",
