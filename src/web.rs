@@ -24,7 +24,7 @@ pub async fn run(bind_addr: &str, root: &PathBuf) -> std::io::Result<()> {
     .bind(bind_addr)?
     .run();
 
-    log::info!("Serving files from {:?}", &root);
+    log::info!("Serving files from {:?}", root);
     s.await
 }
 
